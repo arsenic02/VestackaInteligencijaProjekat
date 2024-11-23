@@ -170,8 +170,7 @@ def drawInitialTable(n):
     plt.show()
 
 
-# Primer poziva funkcije
-drawInitialTable(4)
+
 
 
 

@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-
+import tkinter as tk
 
 def drawInitialTable(n):
     if n < 4 or n > 8:
@@ -51,10 +51,5 @@ def drawInitialTable(n):
     plt.axis('equal')  # Jednake proporcije
     plt.axis('off')  # Sakrijemo ose
     plt.show()
-
-
-# Primer poziva funkcije
-# draw_triggle_game(5)
-drawInitialTable(4)
 
 
