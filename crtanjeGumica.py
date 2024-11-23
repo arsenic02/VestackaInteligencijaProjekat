@@ -1,6 +1,35 @@
 import matplotlib.pyplot as plt
 import math
+import matplotlib.patches as patches
+def connectDots(ax, point1, point2):
+    # Izračunaj dužinu i ugao pravougaonika
+    length = ((point2[0] - point1[0]) ** 2 + (point2[1] - point1[1]) ** 2) ** 0.5
+    angle = math.degrees(math.atan2(point2[1] - point1[1], point2[0] - point1[0]))
 
+    # Dimenzije pravougaonika
+    width = 0.2  # Širina pravougaonika
+    x1 = point1[0]
+    y1=point1[1]
+    x2= point2[0]
+    y2 = point2[1]
+
+    # Pozicija pravougaonika treba da bude postavljena tako da njegov centar bude u sredini između tačaka
+    # Podesimo poziciju donjeg levog ugla
+    rect_x = x1
+    rect_y = y1
+
+    # Kreiraj pravougaonik sa željenim parametrima
+    rectangle = patches.Rectangle(
+        (rect_x, rect_y),  # Donji levi ugao pravougaonika
+        length,  # Dužina pravougaonika
+        width,  # Širina pravougaonika
+        angle=angle,  # Ugao rotacije
+        linewidth=0.7,
+        edgecolor='red',
+        facecolor='none')
+
+    # Dodaj pravougaonik na grafikon
+    ax.add_patch(rectangle)
 def drawInitialTable(n):
     if n < 4 or n > 8:
         print("n mora biti između 4 i 8!")
@@ -93,8 +122,7 @@ def drawInitialTable(n):
                             pair = tuple(sorted(selected_points))
                             if pair not in connected_pairs:
                                 connected_pairs.add(pair)
-                                x_line, y_line = zip(*selected_points)
-                                ax.plot(x_line, y_line, 'red', linewidth=2)
+                                connectDots(ax, selected_points[0], selected_points[1])
                                 plt.draw()
                             else:
                                 print(f"Tačke {pair} su već povezane!")
