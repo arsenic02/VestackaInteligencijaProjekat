@@ -1,6 +1,9 @@
+
+# ovo sa dve strane lepo belezi tacke sa koordinatama i slovima
 import matplotlib.pyplot as plt
 import math
 import matplotlib.patches as patches
+
 def connectDots(ax, point1, point2):
     # Izračunaj dužinu i ugao pravougaonika
     length = ((point2[0] - point1[0]) ** 2 + (point2[1] - point1[1]) ** 2) ** 0.5
@@ -8,15 +11,10 @@ def connectDots(ax, point1, point2):
 
     # Dimenzije pravougaonika
     width = 0.2  # Širina pravougaonika
-    x1 = point1[0]
-    y1=point1[1]
-    x2= point2[0]
-    y2 = point2[1]
 
     # Pozicija pravougaonika treba da bude postavljena tako da njegov centar bude u sredini između tačaka
-    # Podesimo poziciju donjeg levog ugla
-    rect_x = x1
-    rect_y = y1
+    rect_x = point1[0]
+    rect_y = point1[1]
 
     # Kreiraj pravougaonik sa željenim parametrima
     rectangle = patches.Rectangle(
@@ -30,6 +28,7 @@ def connectDots(ax, point1, point2):
 
     # Dodaj pravougaonik na grafikon
     ax.add_patch(rectangle)
+
 def drawInitialTable(n):
     if n < 4 or n > 8:
         print("n mora biti između 4 i 8!")
@@ -42,6 +41,11 @@ def drawInitialTable(n):
 
     x_coords = []
     y_coords = []
+    point_labels = {}  # Rečnik za čuvanje koordinata i oznaka
+    point_labels_reversed={}
+
+    labels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    label_index = 0  # Indeks za oznake redova
 
     current_row_length = n
     x_offset = 0
@@ -53,11 +57,18 @@ def drawInitialTable(n):
         for j in range(current_row_length):
             x_coords.append(x)
             y_coords.append(y)
-            x += spacing
 
+            # Generisanje oznake tačke
+            point_label = f"{labels[label_index]}{j + 1}"
+            point_labels[(x, y)] = point_label  # Dodaj u rečnik
+            point_labels_reversed[point_label]=(x,y) #kljuc je vrednost, vrednost postaj ekljuc , da imamo 2 kljuca
+
+
+            x += spacing
         current_row_length += 1
         x_offset += spacing / 2
-        y -= spacing
+        y += spacing  # Promeni ovde u "y += spacing", da raste od gore ka dole
+        label_index += 1
 
     # Crtanje redova sa opadajućom dužinom
     current_row_length = n + n - 1
@@ -66,14 +77,32 @@ def drawInitialTable(n):
         for j in range(1, current_row_length):
             x_coords.append(x)
             y_coords.append(y)
+
+            # Generisanje oznake tačke
+            point_label = f"{labels[label_index]}{j}"
+            point_labels[(x, y)] = point_label  # Dodaj u rečnik
+            point_labels_reversed[point_label] = (x, y);
+
             x += spacing
         current_row_length -= 1
         x_offset -= spacing / 2
-        y -= spacing
+        y += spacing  # Promeni ovde u "y += spacing", da raste od gore ka dole
+        label_index += 1
 
+    # Prikazujemo strukturu u konzoli za proveru
+
+    # print("Koordinate i oznake tačaka:")
+    # for coord, label in point_labels.items():
+    #     print(f"Koordinata: {coord}, Oznaka: {label}")
+
+    print("Kliknuto je na tacku: ")
+    for coord,label in point_labels_reversed.items():
+        print(f"Oznaka: {coord}, Koordinata: {label}")
+
+    # Prikazivanje na plotu
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.scatter(x_coords, y_coords, color='blue', s=50)
-    ax.invert_yaxis()
+    ax.invert_yaxis()  # Ovo inverzuje y-osa, pa će (0, 0) biti u gornjem levom kutu
     ax.axis('equal')
     ax.axis('off')
 
@@ -118,12 +147,13 @@ def drawInitialTable(n):
                 if len(selected_points) == 2:
                     if is_valid_angle(selected_points[0], selected_points[1]):
                         distance = calculate_distance(selected_points[0], selected_points[1])
-                        if distance >= 3 and distance <=3.6:  # Proveri da li je dužina linije 4 tacke
+                        if distance >= 3 and distance <= 3.6:  # Proveri da li je dužina linije 4 tacke
                             pair = tuple(sorted(selected_points))
                             if pair not in connected_pairs:
                                 connected_pairs.add(pair)
                                 connectDots(ax, selected_points[0], selected_points[1])
                                 plt.draw()
+                                print(pair)
                             else:
                                 print(f"Tačke {pair} su već povezane!")
                         else:
@@ -147,4 +177,5 @@ def drawInitialTable(n):
 
     plt.show()
 
-drawInitialTable(4)
+# Testiranje funkcije
+drawInitialTable(5)
