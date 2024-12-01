@@ -29,6 +29,80 @@ def connectDots(ax, point1, point2):
     # Dodaj pravougaonik na grafikon
     ax.add_patch(rectangle)
 
+valid_angles = [0, 60, 120, 180, 240, 300]
+
+def is_valid_angle(point1, point2):
+    delta_x = point2[0] - point1[0]
+    delta_y = point2[1] - point1[1]
+    angle = math.degrees(math.atan2(delta_y, delta_x)) % 360
+
+    tolerance = 7
+    for valid_angle in valid_angles:
+        if abs(angle - valid_angle) <= tolerance or abs(angle - (valid_angle + 360)) <= tolerance:
+            return True
+    return False
+
+def calculate_distance(point1, point2):
+    delta_x = point2[0] - point1[0]
+    delta_y = point2[1] - point1[1]
+    return math.sqrt(delta_x ** 2 + delta_y ** 2)
+
+def razdvoji(input_str):
+    letter = ''.join([char for char in input_str if char.isalpha()])
+    number = ''.join([char for char in input_str if char.isdigit()])
+    number = int(number)
+    return (letter, number)
+
+def broj_u_slovo(n):
+    # Pretvori broj u odgovarajuće slovo
+    if 1 <= n <= 26:  # Ova funkcija funkcioniše za brojeve od 1 do 26
+        return chr(ord('A') + n - 1)  # 'A' ima ASCII vrednost 65, pa dodajemo n-1
+    else:
+        return "Nema odgovarajućeg slova"  # Ako broj nije između 1 i 26
+
+def slovo_u_broj(n):
+    return (ord(n) - ord('A') + 1)
+
+def get_intermediate_points(start, end,n):
+
+        start_point = razdvoji(point_labels[start])
+        end_point =  razdvoji(point_labels[end])
+        intermediate = []
+        if(start_point[0]>end_point[0]):#Uvek stavlja da onaj gore bude start
+            start_point, end_point = end_point, start_point  # Swap vrednosti tuple-ova
+
+        diff = abs(start_point[1]-end_point[1])+1
+        if(diff==4 or start_point[1]==end_point[1]): #Da li se nalaze sa iste strane ako da onda je SP-EP+1=4 u suprotnom <4
+
+            if(start_point[1]!=end_point[1] and start_point[0] != end_point[0]):
+                znak = 1
+                if(start_point[1]>end_point[1]):
+                    znak=-1
+                intermediate.append(f"{chr(ord(start_point[0]) + 1)}{(start_point[1]+znak)}")
+                intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]+2*znak}")
+            elif(start_point[1]==end_point[1] and start_point[0]!=end_point[0] ):
+                intermediate.append(f"{chr(ord(start_point[0]) + 1)}{start_point[1]}")
+                intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]}")
+            elif (start_point[0] == end_point[0]):
+                intermediate.append(f"{chr(ord(start_point[0]))}{start_point[1]+1}")
+                intermediate.append(f"{chr(ord(start_point[0]))}{start_point[1]+2}")
+        else: #Gumica prelazi srednju liniju
+            if (start_point[1] > end_point[1]):
+                intermediate.append(f"{chr(ord(start_point[0])+1)}{start_point[1]}")
+                if slovo_u_broj(chr(ord(start_point[0])+1))==n:
+                    intermediate.append(f"{chr(ord(start_point[0])+2)}{start_point[1]-1}")
+                else:
+                    intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]}")
+            else:
+                if slovo_u_broj(chr(ord(start_point[0]) + 1)) == n:
+                    intermediate.append(f"{chr(ord(start_point[0]) + 1)}{start_point[1]+1}")
+                    intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]+1}")
+                else:
+                    intermediate.append(f"{chr(ord(start_point[0]) + 1)}{start_point[1]+1}")
+                    intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]+2}")
+
+        return intermediate
+
 def drawInitialTable(n):
     if n < 4 or n > 8:
         print("n mora biti između 4 i 8!")
@@ -97,79 +171,6 @@ def drawInitialTable(n):
     selected_points = []
     connected_pairs = set()
 
-    valid_angles = [0, 60, 120, 180, 240, 300]
-
-    def is_valid_angle(point1, point2):
-        delta_x = point2[0] - point1[0]
-        delta_y = point2[1] - point1[1]
-        angle = math.degrees(math.atan2(delta_y, delta_x)) % 360
-
-        tolerance = 7
-        for valid_angle in valid_angles:
-            if abs(angle - valid_angle) <= tolerance or abs(angle - (valid_angle + 360)) <= tolerance:
-                return True
-        return False
-
-    def calculate_distance(point1, point2):
-        delta_x = point2[0] - point1[0]
-        delta_y = point2[1] - point1[1]
-        return math.sqrt(delta_x**2 + delta_y**2)
-
-    def razdvoji(input_str):
-        letter = ''.join([char for char in input_str if char.isalpha()])
-        number = ''.join([char for char in input_str if char.isdigit()])
-        number = int(number)
-        return (letter,number)
-
-    def broj_u_slovo(n):
-        # Pretvori broj u odgovarajuće slovo
-        if 1 <= n <= 26:  # Ova funkcija funkcioniše za brojeve od 1 do 26
-            return chr(ord('A') + n - 1)  # 'A' ima ASCII vrednost 65, pa dodajemo n-1
-        else:
-            return "Nema odgovarajućeg slova"  # Ako broj nije između 1 i 26
-    def slovo_u_broj(n):
-        return (ord(n)-ord('A') + 1)
-
-    def get_intermediate_points(start, end):
-
-        start_point = razdvoji(point_labels[start])
-        end_point =  razdvoji(point_labels[end])
-        intermediate = []
-        if(start_point[0]>end_point[0]):#Uvek stavlja da onaj gore bude start
-            start_point, end_point = end_point, start_point  # Swap vrednosti tuple-ova
-
-        diff = abs(start_point[1]-end_point[1])+1
-        if(diff==4 or start_point[1]==end_point[1]): #Da li se nalaze sa iste strane ako da onda je SP-EP+1=4 u suprotnom <4
-
-            if(start_point[1]!=end_point[1] and start_point[0] != end_point[0]):
-                znak = 1
-                if(start_point[1]>end_point[1]):
-                    znak=-1
-                intermediate.append(f"{chr(ord(start_point[0]) + 1)}{(start_point[1]+znak)}")
-                intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]+2*znak}")
-            elif(start_point[1]==end_point[1] and start_point[0]!=end_point[0] ):
-                intermediate.append(f"{chr(ord(start_point[0]) + 1)}{start_point[1]}")
-                intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]}")
-            elif (start_point[0] == end_point[0]):
-                intermediate.append(f"{chr(ord(start_point[0]))}{start_point[1]+1}")
-                intermediate.append(f"{chr(ord(start_point[0]))}{start_point[1]+2}")
-        else: #Gumica prelazi srednju liniju
-            if (start_point[1] > end_point[1]):
-                intermediate.append(f"{chr(ord(start_point[0])+1)}{start_point[1]}")
-                if slovo_u_broj(chr(ord(start_point[0])+1))==n:
-                    intermediate.append(f"{chr(ord(start_point[0])+2)}{start_point[1]-1}")
-                else:
-                    intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]}")
-            else:
-                if slovo_u_broj(chr(ord(start_point[0]) + 1)) == n:
-                    intermediate.append(f"{chr(ord(start_point[0]) + 1)}{start_point[1]+1}")
-                    intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]+1}")
-                else:
-                    intermediate.append(f"{chr(ord(start_point[0]) + 1)}{start_point[1]+1}")
-                    intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]+2}")
-
-        return intermediate
-
     def on_click(event):
         threshold_distance = 0.2
 
@@ -203,7 +204,7 @@ def drawInitialTable(n):
 
                                 plt.draw()
 
-                                intermediate_points = get_intermediate_points(start_point, end_point)
+                                intermediate_points = get_intermediate_points(start_point, end_point,n)
                                 for point in intermediate_points:
                                     print(f"Intermedijarna tačka: {point}")
                             else:
@@ -225,4 +226,4 @@ def drawInitialTable(n):
     plt.show()
 
 # Testiranje funkcije
-drawInitialTable(5)
+#drawInitialTable(5)

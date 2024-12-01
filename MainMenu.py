@@ -1,6 +1,6 @@
 #lepo se prikazuje sad
 import customtkinter as ctk
-from tabla import drawInitialTable
+from crtanjeGumica import drawInitialTable
 # Иницијализација главног прозора
 
 def MainMenu():
