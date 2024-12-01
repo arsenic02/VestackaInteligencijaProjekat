@@ -1,9 +1,9 @@
-
-# ovo sa dve strane lepo belezi tacke sa koordinatama i slovima
 import matplotlib.pyplot as plt
 import math
 import matplotlib.patches as patches
 
+point_labels = {}  # Rečnik za čuvanje koordinata i oznaka
+point_labels_reversed = {}
 def connectDots(ax, point1, point2):
     # Izračunaj dužinu i ugao pravougaonika
     length = ((point2[0] - point1[0]) ** 2 + (point2[1] - point1[1]) ** 2) ** 0.5
@@ -41,8 +41,7 @@ def drawInitialTable(n):
 
     x_coords = []
     y_coords = []
-    point_labels = {}  # Rečnik za čuvanje koordinata i oznaka
-    point_labels_reversed={}
+
 
     labels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     label_index = 0  # Indeks za oznake redova
@@ -61,8 +60,7 @@ def drawInitialTable(n):
             # Generisanje oznake tačke
             point_label = f"{labels[label_index]}{j + 1}"
             point_labels[(x, y)] = point_label  # Dodaj u rečnik
-            point_labels_reversed[point_label]=(x,y) #kljuc je vrednost, vrednost postaj ekljuc , da imamo 2 kljuca
-
+            point_labels_reversed[point_label] = (x, y)  # Ključ je oznaka, vrednost je koordinata
 
             x += spacing
         current_row_length += 1
@@ -81,23 +79,13 @@ def drawInitialTable(n):
             # Generisanje oznake tačke
             point_label = f"{labels[label_index]}{j}"
             point_labels[(x, y)] = point_label  # Dodaj u rečnik
-            point_labels_reversed[point_label] = (x, y);
+            point_labels_reversed[point_label] = (x, y)  # Ključ je oznaka, vrednost je koordinata
 
             x += spacing
         current_row_length -= 1
         x_offset -= spacing / 2
         y += spacing  # Promeni ovde u "y += spacing", da raste od gore ka dole
         label_index += 1
-
-    # Prikazujemo strukturu u konzoli za proveru
-
-    # print("Koordinate i oznake tačaka:")
-    # for coord, label in point_labels.items():
-    #     print(f"Koordinata: {coord}, Oznaka: {label}")
-
-    print("Kliknuto je na tacku: ")
-    for coord,label in point_labels_reversed.items():
-        print(f"Oznaka: {coord}, Koordinata: {label}")
 
     # Prikazivanje na plotu
     fig, ax = plt.subplots(figsize=(6, 6))
@@ -127,8 +115,62 @@ def drawInitialTable(n):
         delta_y = point2[1] - point1[1]
         return math.sqrt(delta_x**2 + delta_y**2)
 
+    def razdvoji(input_str):
+        letter = ''.join([char for char in input_str if char.isalpha()])
+        number = ''.join([char for char in input_str if char.isdigit()])
+        number = int(number)
+        return (letter,number)
+
+    def broj_u_slovo(n):
+        # Pretvori broj u odgovarajuće slovo
+        if 1 <= n <= 26:  # Ova funkcija funkcioniše za brojeve od 1 do 26
+            return chr(ord('A') + n - 1)  # 'A' ima ASCII vrednost 65, pa dodajemo n-1
+        else:
+            return "Nema odgovarajućeg slova"  # Ako broj nije između 1 i 26
+    def slovo_u_broj(n):
+        return (ord(n)-ord('A') + 1)
+
+    def get_intermediate_points(start, end):
+
+        start_point = razdvoji(point_labels[start])
+        end_point =  razdvoji(point_labels[end])
+        intermediate = []
+        if(start_point[0]>end_point[0]):#Uvek stavlja da onaj gore bude start
+            start_point, end_point = end_point, start_point  # Swap vrednosti tuple-ova
+
+        diff = abs(start_point[1]-end_point[1])+1
+        if(diff==4 or start_point[1]==end_point[1]): #Da li se nalaze sa iste strane ako da onda je SP-EP+1=4 u suprotnom <4
+
+            if(start_point[1]!=end_point[1] and start_point[0] != end_point[0]):
+                znak = 1
+                if(start_point[1]>end_point[1]):
+                    znak=-1
+                intermediate.append(f"{chr(ord(start_point[0]) + 1)}{(start_point[1]+znak)}")
+                intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]+2*znak}")
+            elif(start_point[1]==end_point[1] and start_point[0]!=end_point[0] ):
+                intermediate.append(f"{chr(ord(start_point[0]) + 1)}{start_point[1]}")
+                intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]}")
+            elif (start_point[0] == end_point[0]):
+                intermediate.append(f"{chr(ord(start_point[0]))}{start_point[1]+1}")
+                intermediate.append(f"{chr(ord(start_point[0]))}{start_point[1]+2}")
+        else: #Gumica prelazi srednju liniju
+            if (start_point[1] > end_point[1]):
+                intermediate.append(f"{chr(ord(start_point[0])+1)}{start_point[1]}")
+                if slovo_u_broj(chr(ord(start_point[0])+1))==n:
+                    intermediate.append(f"{chr(ord(start_point[0])+2)}{start_point[1]-1}")
+                else:
+                    intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]}")
+            else:
+                if slovo_u_broj(chr(ord(start_point[0]) + 1)) == n:
+                    intermediate.append(f"{chr(ord(start_point[0]) + 1)}{start_point[1]+1}")
+                    intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]+1}")
+                else:
+                    intermediate.append(f"{chr(ord(start_point[0]) + 1)}{start_point[1]+1}")
+                    intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]+2}")
+
+        return intermediate
+
     def on_click(event):
-        # Prag udaljenosti za detekciju tačke
         threshold_distance = 0.2
 
         if event.xdata is not None and event.ydata is not None:
@@ -139,21 +181,31 @@ def drawInitialTable(n):
             nearest_index = distances.index(min(distances))
             nearest_point = (x_coords[nearest_index], y_coords[nearest_index])
 
-            # Proveri da li je klik unutar praga
             if distances[nearest_index] <= threshold_distance:
                 selected_points.append(nearest_point)
                 ax.plot(*nearest_point, 'ro', markersize=5)
 
                 if len(selected_points) == 2:
-                    if is_valid_angle(selected_points[0], selected_points[1]):
-                        distance = calculate_distance(selected_points[0], selected_points[1])
+                    start_point = selected_points[0]
+                    end_point = selected_points[1]
+
+                    if is_valid_angle(start_point, end_point):
+                        distance = calculate_distance(start_point, end_point)
                         if distance >= 3 and distance <= 3.6:  # Proveri da li je dužina linije 4 tacke
-                            pair = tuple(sorted(selected_points))
+                            pair = tuple(sorted([start_point, end_point]))
                             if pair not in connected_pairs:
                                 connected_pairs.add(pair)
-                                connectDots(ax, selected_points[0], selected_points[1])
+                                connectDots(ax, start_point, end_point)
+
+                                # Ispisivanje svih tačaka između startne i krajnje
+                                print(f"Startna tačka: {point_labels[start_point]}")
+                                print(f"Krajnja tačka: {point_labels[end_point]}")
+
                                 plt.draw()
-                                print(pair)
+
+                                intermediate_points = get_intermediate_points(start_point, end_point)
+                                for point in intermediate_points:
+                                    print(f"Intermedijarna tačka: {point}")
                             else:
                                 print(f"Tačke {pair} su već povezane!")
                         else:
@@ -161,17 +213,12 @@ def drawInitialTable(n):
                     else:
                         print("Nevalidan potez!")
 
-                    for point in selected_points:
-                        ax.plot(*point, 'bo', markersize=5)
-
+                    # Obrisati selektovane tačke za sledeći odabir
                     selected_points.clear()
-
-                elif len(selected_points) == 1:
-                    ax.plot(*selected_points[0], 'ro', markersize=5)
 
                 plt.draw()
             else:
-                print("Klik je van tačke!")  # Poruka za klik van tačke
+                print("Klik je van tačke!")
 
     fig.canvas.mpl_connect('button_press_event', on_click)
 
