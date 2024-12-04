@@ -9,7 +9,8 @@ obojeni_trouglovi = []
 
 igrac1_score=0 #score predstavlja broj trouglica na tabli
 igrac2_score=0
-
+listaGumica = []
+listaTrouglova = []
 def get_igrac1_score():
     return igrac1_score
 def get_igrac2_score():
@@ -59,6 +60,127 @@ def connectDots(ax, point1, point2):
 
     # Dodaj pravougaonik na grafikon
     ax.add_patch(rectangle)
+valid_angles = [0, 60, 120, 180, 240, 300]
+
+
+def is_valid_angle(point1, point2):
+    delta_x = point2[0] - point1[0]
+    delta_y = point2[1] - point1[1]
+    angle = math.degrees(math.atan2(delta_y, delta_x)) % 360
+
+    tolerance = 7
+    for valid_angle in valid_angles:
+        if abs(angle - valid_angle) <= tolerance or abs(angle - (valid_angle + 360)) <= tolerance:
+            return True
+    return False
+
+
+def calculate_distance(point1, point2):
+    delta_x = point2[0] - point1[0]
+    delta_y = point2[1] - point1[1]
+    return math.sqrt(delta_x ** 2 + delta_y ** 2)
+
+
+def razdvoji(input_str):
+    letter = ''.join([char for char in input_str if char.isalpha()])
+    number = ''.join([char for char in input_str if char.isdigit()])
+    number = int(number)
+    return (letter, number)
+
+
+def broj_u_slovo(n):
+    # Pretvori broj u odgovarajuće slovo
+    if 1 <= n <= 26:  # Ova funkcija funkcioniše za brojeve od 1 do 26
+        return chr(ord('A') + n - 1)  # 'A' ima ASCII vrednost 65, pa dodajemo n-1
+    else:
+        return "Nema odgovarajućeg slova"  # Ako broj nije između 1 i 26
+
+
+def slovo_u_broj(n):
+    return (ord(n) - ord('A') + 1)
+
+
+def get_intermediate_points(start, end,n):
+    start_point = razdvoji(point_labels[start])
+    end_point = razdvoji(point_labels[end])
+    intermediate = []
+    if (start_point[0] > end_point[0]):  # Uvek stavlja da onaj gore bude start
+        start_point, end_point = end_point, start_point  # Swap vrednosti tuple-ova
+
+    diff = abs(start_point[1] - end_point[1]) + 1
+    if (diff == 4 or start_point[1] == end_point[
+        1]):  # Da li se nalaze sa iste strane ako da onda je SP-EP+1=4 u suprotnom <4
+
+        if (start_point[1] != end_point[1] and start_point[0] != end_point[0]):
+            znak = 1
+            if (start_point[1] > end_point[1]):
+                znak = -1
+            intermediate.append(f"{chr(ord(start_point[0]) + 1)}{(start_point[1] + znak)}")
+            intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1] + 2 * znak}")
+        elif (start_point[1] == end_point[1] and start_point[0] != end_point[0]):
+            intermediate.append(f"{chr(ord(start_point[0]) + 1)}{start_point[1]}")
+            intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]}")
+        elif (start_point[0] == end_point[0]):
+            intermediate.append(f"{chr(ord(start_point[0]))}{start_point[1] + 1}")
+            intermediate.append(f"{chr(ord(start_point[0]))}{start_point[1] + 2}")
+    else:  # Gumica prelazi srednju liniju
+        if (start_point[1] > end_point[1]):
+            intermediate.append(f"{chr(ord(start_point[0]) + 1)}{start_point[1]}")
+            if slovo_u_broj(chr(ord(start_point[0]) + 1)) == n:
+                intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1] - 1}")
+            else:
+                intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]}")
+        else:
+            if slovo_u_broj(chr(ord(start_point[0]) + 1)) == n:
+                intermediate.append(f"{chr(ord(start_point[0]) + 1)}{start_point[1] + 1}")
+                intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1] + 1}")
+            else:
+                intermediate.append(f"{chr(ord(start_point[0]) + 1)}{start_point[1] + 1}")
+                intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1] + 2}")
+
+    return intermediate
+
+def detect_triangle(input_list, all_lists):
+    # Филтрирамо листе које деле бар један елемент са улазном листом
+    related_lists = [lst for lst in all_lists if any(x in input_list for x in lst)]
+
+    triangles = []  # Листа за троуглове
+
+    # Проверавамо све парове листа
+    for i in range(len(related_lists)):
+        for j in range(i + 1, len(related_lists)):
+            l1 = related_lists[i]
+            l2 = related_lists[j]
+
+            l1_l2_ZT = set(l1) & set(l2)#Zajednicke tacke izmedju listi L1 i L2
+            input_l1_ZT = set(input_list) & set(l1) #Zajendicke tacke izmedju input_list i L1
+            input_l2_ZT = set(input_list) & set(l2) #Zajednicke tacke izmedju input_list i L2
+
+            if not l1_l2_ZT or not input_l2_ZT or not input_l1_ZT: #Ako je neki od skupova prazan preskoci
+                continue
+
+                #Preskace slucajj kas su p1,p2 i p3 ista tacka
+            if (next(iter(l1_l2_ZT)) == next(iter(input_l1_ZT)) and
+                next(iter(input_l1_ZT)) == next(iter(input_l2_ZT)) and
+                next(iter(l1_l2_ZT)) == next(iter(input_l2_ZT))):
+                continue
+
+            point1 = razdvoji(next(iter(l1_l2_ZT)))
+            point2 = razdvoji(next(iter(input_l1_ZT)))
+            point3 = razdvoji(next(iter(input_l2_ZT)))
+
+            #Izbacuje "velike" trouglove i racuna samo one za koje je rastojanje izmedju 2 temena 1
+            if(abs(point1[1]-point2[1])<2 and
+                    abs(point2[1]-point3[1])<2 and
+                    abs(point1[1]-point3[1])<2 and
+                    slovo_u_broj(point1[0])-slovo_u_broj(point2[0])<2 and
+                    slovo_u_broj(point2[0])-slovo_u_broj(point3[0])<2 and
+                    slovo_u_broj(point1[0])-slovo_u_broj(point3[0])<2):
+
+                triangles.append([next(iter(input_l1_ZT)), next(iter(input_l2_ZT)), next(iter(l1_l2_ZT))])
+
+    return triangles
+
 
 def krajIgre(n,igrac1_score,igrac2_score):
 
@@ -150,78 +272,9 @@ def drawInitialTable(n):
     selected_points = []
     connected_pairs = set()
 
-    valid_angles = [0, 60, 120, 180, 240, 300]
 
-    def is_valid_angle(point1, point2):
-        delta_x = point2[0] - point1[0]
-        delta_y = point2[1] - point1[1]
-        angle = math.degrees(math.atan2(delta_y, delta_x)) % 360
 
-        tolerance = 7
-        for valid_angle in valid_angles:
-            if abs(angle - valid_angle) <= tolerance or abs(angle - (valid_angle + 360)) <= tolerance:
-                return True
-        return False
 
-    def calculate_distance(point1, point2):
-        delta_x = point2[0] - point1[0]
-        delta_y = point2[1] - point1[1]
-        return math.sqrt(delta_x**2 + delta_y**2)
-
-    def razdvoji(input_str):
-        letter = ''.join([char for char in input_str if char.isalpha()])
-        number = ''.join([char for char in input_str if char.isdigit()])
-        number = int(number)
-        return (letter,number)
-
-    def broj_u_slovo(n):
-        # Pretvori broj u odgovarajuće slovo
-        if 1 <= n <= 26:  # Ova funkcija funkcioniše za brojeve od 1 do 26
-            return chr(ord('A') + n - 1)  # 'A' ima ASCII vrednost 65, pa dodajemo n-1
-        else:
-            return "Nema odgovarajućeg slova"  # Ako broj nije između 1 i 26
-    def slovo_u_broj(n):
-        return (ord(n)-ord('A') + 1)
-
-    def get_intermediate_points(start, end):
-
-        start_point = razdvoji(point_labels[start])
-        end_point =  razdvoji(point_labels[end])
-        intermediate = []
-        if(start_point[0]>end_point[0]):#Uvek stavlja da onaj gore bude start
-            start_point, end_point = end_point, start_point  # Swap vrednosti tuple-ova
-
-        diff = abs(start_point[1]-end_point[1])+1
-        if(diff==4 or start_point[1]==end_point[1]): #Da li se nalaze sa iste strane ako da onda je SP-EP+1=4 u suprotnom <4
-
-            if(start_point[1]!=end_point[1] and start_point[0] != end_point[0]):
-                znak = 1
-                if(start_point[1]>end_point[1]):
-                    znak=-1
-                intermediate.append(f"{chr(ord(start_point[0]) + 1)}{(start_point[1]+znak)}")
-                intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]+2*znak}")
-            elif(start_point[1]==end_point[1] and start_point[0]!=end_point[0] ):
-                intermediate.append(f"{chr(ord(start_point[0]) + 1)}{start_point[1]}")
-                intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]}")
-            elif (start_point[0] == end_point[0]):
-                intermediate.append(f"{chr(ord(start_point[0]))}{start_point[1]+1}")
-                intermediate.append(f"{chr(ord(start_point[0]))}{start_point[1]+2}")
-        else: #Gumica prelazi srednju liniju
-            if (start_point[1] > end_point[1]):
-                intermediate.append(f"{chr(ord(start_point[0])+1)}{start_point[1]}")
-                if slovo_u_broj(chr(ord(start_point[0])+1))==n:
-                    intermediate.append(f"{chr(ord(start_point[0])+2)}{start_point[1]-1}")
-                else:
-                    intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]}")
-            else:
-                if slovo_u_broj(chr(ord(start_point[0]) + 1)) == n:
-                    intermediate.append(f"{chr(ord(start_point[0]) + 1)}{start_point[1]+1}")
-                    intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]+1}")
-                else:
-                    intermediate.append(f"{chr(ord(start_point[0]) + 1)}{start_point[1]+1}")
-                    intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]+2}")
-
-        return intermediate
 
     # Globalna lista za crvene tačke
     red_points = []
@@ -255,13 +308,17 @@ def drawInitialTable(n):
                                 connected_pairs.add(pair)
                                 connectDots(ax, start_point, end_point)
 
-                                # Ispisivanje svih tačaka između startne i krajnje
-                                print(f"Startna tačka: {point_labels[start_point]}")
-                                print(f"Krajnja tačka: {point_labels[end_point]}")
+                                intermediate_points = get_intermediate_points(start_point, end_point,n)
+                                trenutnaGumica = [point_labels[start_point], *intermediate_points, point_labels[end_point]]
+                                detektovani_trouglici = detect_triangle(trenutnaGumica,listaGumica)
+                                print(detektovani_trouglici)
+                                for trouglic in detektovani_trouglici:
+                                    if trouglic not in listaTrouglova:
+                                        listaTrouglova.append(trouglic)
 
-                                intermediate_points = get_intermediate_points(start_point, end_point)
-                                for point in intermediate_points:
-                                    print(f"Intermedijarna tačka: {point}")
+                                listaGumica.append(trenutnaGumica)#Kreira listu gumimca
+
+                                print(listaTrouglova)
                             else:
                                 print(f"Tačke {pair} su već povezane!")
                         else:
@@ -348,5 +405,5 @@ def drawInitialTable(n):
     plt.show()
 
 # Testiranje funkcije
-# drawInitialTable(4)
+drawInitialTable(5)
 
