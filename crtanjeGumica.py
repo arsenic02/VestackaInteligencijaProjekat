@@ -160,8 +160,8 @@ def detect_triangle(input_list, all_lists):
                 continue
 
                 #Preskace slucajj kas su p1,p2 i p3 ista tacka
-            if (next(iter(l1_l2_ZT)) == next(iter(input_l1_ZT)) and
-                next(iter(input_l1_ZT)) == next(iter(input_l2_ZT)) and
+            if (next(iter(l1_l2_ZT)) == next(iter(input_l1_ZT)) or
+                next(iter(input_l1_ZT)) == next(iter(input_l2_ZT)) or
                 next(iter(l1_l2_ZT)) == next(iter(input_l2_ZT))):
                 continue
 
@@ -311,10 +311,12 @@ def drawInitialTable(n):
                                 intermediate_points = get_intermediate_points(start_point, end_point,n)
                                 trenutnaGumica = [point_labels[start_point], *intermediate_points, point_labels[end_point]]
                                 detektovani_trouglici = detect_triangle(trenutnaGumica,listaGumica)
-                                print(detektovani_trouglici)
+
+
                                 for trouglic in detektovani_trouglici:
-                                    if trouglic not in listaTrouglova:
-                                        listaTrouglova.append(trouglic)
+                                    sortedTrouglic = sorted(trouglic)
+                                    if sortedTrouglic not in listaTrouglova:
+                                        listaTrouglova.append(sortedTrouglic)
 
                                 listaGumica.append(trenutnaGumica)#Kreira listu gumimca
 
