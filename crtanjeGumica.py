@@ -108,21 +108,19 @@ def get_intermediate_points(start, end,n):
         start_point, end_point = end_point, start_point  # Swap vrednosti tuple-ova
 
     diff = abs(start_point[1] - end_point[1]) + 1
-    if (diff == 4 or start_point[1] == end_point[
-        1]):  # Da li se nalaze sa iste strane ako da onda je SP-EP+1=4 u suprotnom <4
-
+    if (diff == 4 or start_point[1] == end_point[1]):  # Da li se nalaze sa iste strane ako da onda je SP-EP+1=4 u suprotnom <4
+        znak=1
+        if (start_point[1] > end_point[1]):
+            znak = -1
         if (start_point[1] != end_point[1] and start_point[0] != end_point[0]):
-            znak = 1
-            if (start_point[1] > end_point[1]):
-                znak = -1
             intermediate.append(f"{chr(ord(start_point[0]) + 1)}{(start_point[1] + znak)}")
             intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1] + 2 * znak}")
         elif (start_point[1] == end_point[1] and start_point[0] != end_point[0]):
             intermediate.append(f"{chr(ord(start_point[0]) + 1)}{start_point[1]}")
             intermediate.append(f"{chr(ord(start_point[0]) + 2)}{start_point[1]}")
-        elif (start_point[0] == end_point[0]):
-            intermediate.append(f"{chr(ord(start_point[0]))}{start_point[1] + 1}")
-            intermediate.append(f"{chr(ord(start_point[0]))}{start_point[1] + 2}")
+        elif (start_point[0] == end_point[0]):#Ovde pravi problem
+                intermediate.append(f"{chr(ord(start_point[0]))}{start_point[1] + znak}")
+                intermediate.append(f"{chr(ord(start_point[0]))}{start_point[1] + 2*znak}")
     else:  # Gumica prelazi srednju liniju
         if (start_point[1] > end_point[1]):
             intermediate.append(f"{chr(ord(start_point[0]) + 1)}{start_point[1]}")
@@ -272,10 +270,6 @@ def drawInitialTable(n):
     selected_points = []
     connected_pairs = set()
 
-
-
-
-
     # Globalna lista za crvene tačke
     red_points = []
 
@@ -310,17 +304,76 @@ def drawInitialTable(n):
 
                                 intermediate_points = get_intermediate_points(start_point, end_point,n)
                                 trenutnaGumica = [point_labels[start_point], *intermediate_points, point_labels[end_point]]
+                                print(trenutnaGumica)
                                 detektovani_trouglici = detect_triangle(trenutnaGumica,listaGumica)
 
-
+                                dodati_trouglici = []
                                 for trouglic in detektovani_trouglici:
                                     sortedTrouglic = sorted(trouglic)
                                     if sortedTrouglic not in listaTrouglova:
                                         listaTrouglova.append(sortedTrouglic)
+                                        dodati_trouglici.append(sortedTrouglic)
 
                                 listaGumica.append(trenutnaGumica)#Kreira listu gumimca
 
-                                print(listaTrouglova)
+                                # Pronađi 3 najbliže tačke
+                                if(len(dodati_trouglici)>0):
+                                    for trougao in dodati_trouglici:
+                                        if trougao not in obojeni_trouglovi:
+                                            obojeni_trouglovi.append(trougao)
+                                        else:
+                                            continue
+
+                                        #point_labels_reversed
+                                        temena = []
+                                        for teme in trougao:
+                                            temena.append(point_labels_reversed[teme])
+
+                                        if get_prvi_igrac_na_potezu():
+                                            edgecolor = 'green'
+                                            facecolor = 'green'
+                                            set_igrac1_score(get_igrac1_score() + 1)
+                                            print(f"Score igrac1: {get_igrac1_score()}")
+                                        else:
+                                            edgecolor = 'orange'
+                                            facecolor = 'orange'
+                                            set_igrac2_score(get_igrac2_score() + 1)
+                                            print(f"Score igrac2: {get_igrac2_score()}")
+
+                                        # Nacrtaj trougao između tih tačaka i oboji ga zelenom bojom
+                                        triangle = patches.Polygon(
+                                            temena,
+                                            closed=True,
+                                            edgecolor=edgecolor,  # 'green',
+                                            facecolor=facecolor,  # 'green',  # Dodaj boju unutrašnjosti
+                                            alpha=0.5,  # Opcionalno, smanji neprozirnost
+                                            linewidth=1.5
+                                        )
+                                        ax.add_patch(triangle)
+
+
+                                        # Oznake tačaka trougla
+                                        for point in temena:
+                                            ax.plot(*point, 'go', markersize=5)
+                                            print(f"Tačka trougla: {point_labels[point]}")
+
+                                        # logika da nakon odigranog poteza prvog igraca igra drugi igrac, i obrnuto
+
+                                        if get_prvi_igrac_na_potezu():
+                                            set_prvi_igrac_na_potezu(False)
+                                        else:
+                                            set_prvi_igrac_na_potezu(True)
+
+                                            if krajIgre(n, igrac1_score, igrac2_score):
+                                                if igrac1_score > igrac2_score:
+                                                    print('Kraj igre, igrac1 je pobedio')
+                                                elif igrac2_score > igrac1_score:
+                                                    print('Kraj igre, igrac2 je pobedio')
+                                                else:
+                                                    print('Kraj igre, nereseno je')
+                                                return
+                                    print(obojeni_trouglovi)
+                                    print(listaTrouglova)
                             else:
                                 print(f"Tačke {pair} su već povezane!")
                         else:
@@ -334,65 +387,6 @@ def drawInitialTable(n):
                     selected_points.clear()
 
                 plt.draw()
-            else:
-
-                # Pronađi 3 najbliže tačke
-                sorted_indices = sorted(range(len(distances)), key=lambda i: distances[i])
-                closest_points = [(x_coords[i], y_coords[i]) for i in sorted_indices[:3]]
-
-                triangle_path = Path(closest_points)
-                for obojeni_path in obojeni_trouglovi:
-                    if obojeni_path.contains_point((event.xdata, event.ydata)):
-                        print("Ovaj trougao je već obojen!")
-                        return
-
-                if get_prvi_igrac_na_potezu():
-                    edgecolor = 'green'
-                    facecolor = 'green'
-                    set_igrac1_score(get_igrac1_score() + 1)
-                    print(f"Score igrac1: {get_igrac1_score()}")
-                else:
-                    edgecolor = 'orange'
-                    facecolor = 'orange'
-                    set_igrac2_score(get_igrac2_score() + 1)
-                    print(f"Score igrac2: {get_igrac2_score()}")
-
-
-                # Nacrtaj trougao između tih tačaka i oboji ga zelenom bojom
-                triangle = patches.Polygon(
-                    closest_points,
-                    closed=True,
-                    edgecolor=edgecolor,#'green',
-                    facecolor=facecolor,#'green',  # Dodaj boju unutrašnjosti
-                    alpha=0.5,  # Opcionalno, smanji neprozirnost
-                    linewidth=1.5
-                )
-                ax.add_patch(triangle)
-
-                obojeni_trouglovi.append(triangle_path)
-                # Oznake tačaka trougla
-                for point in closest_points:
-                    ax.plot(*point, 'go', markersize=5)
-                    print(f"Tačka trougla: {point_labels[point]}")
-
-                plt.draw()
-
-                #logika da nakon odigranog poteza prvog igraca igra drugi igrac, i obrnuto
-
-                if get_prvi_igrac_na_potezu():
-                    set_prvi_igrac_na_potezu(False)
-                else:
-                    set_prvi_igrac_na_potezu(True)
-
-                    if krajIgre(n,igrac1_score,igrac2_score):
-                        if igrac1_score>igrac2_score:
-                            print('Kraj igre, igrac1 je pobedio')
-                        elif igrac2_score>igrac1_score:
-                            print('Kraj igre, igrac2 je pobedio')
-                        else:
-                            print('Kraj igre, nereseno je')
-                        return
-
 
     def remove_last_two_points():
         """Ukloni samo poslednje dve crvene tačke sa grafa."""
