@@ -208,7 +208,7 @@ def krajIgre(n,igrac1_score,igrac2_score):
     else:
         return False
 
-def drawInitialTable(n):
+def drawInitialTable(n,selected_opponent, player1Color, player2Color):
     if n < 4 or n > 8:
         print("n mora biti između 4 i 8!")
         return
@@ -336,6 +336,23 @@ def drawInitialTable(n):
                                 brojObojenihTrouglica=0
                                 # Pronađi 3 najbliže tačke
                                 if(len(dodati_trouglici)>0):
+                                    global prviIgracNaPotezu
+
+                                    global igrac1_score, igrac2_score
+                                    print(f"Boja za 1 igraca: {player1Color}")
+                                    print(f"Boja za 2 igraca: {player2Color}")
+                                    if prviIgracNaPotezu:
+                                        edgecolor = player1Color
+                                        facecolor = player1Color
+                                        igrac1_score += brojObojenihTrouglica
+                                        print(f"Score igrac1: {igrac1_score}")
+                                    else:
+                                        edgecolor = player2Color
+                                        facecolor = player2Color
+                                        igrac2_score += brojObojenihTrouglica
+                                        print(f"Score igrac2: {igrac2_score}")
+
+
                                     for trougao in dodati_trouglici:
                                         if trougao not in obojeni_trouglovi:
                                             obojeni_trouglovi.append(trougao)
@@ -347,22 +364,6 @@ def drawInitialTable(n):
                                         temena = []
                                         for teme in trougao:
                                             temena.append(point_labels_reversed[teme])
-
-                                        global prviIgracNaPotezu
-                                        # if get_prvi_igrac_na_potezu():
-                                        global igrac1_score, igrac2_score
-                                        if prviIgracNaPotezu:
-                                            edgecolor = 'green'
-                                            facecolor = 'green'
-                                            igrac1_score+=brojObojenihTrouglica
-                                            # set_igrac1_score(get_igrac1_score() + brojObojenihTrouglica)
-                                            print(f"Score igrac1: {igrac1_score}")
-                                        else:
-                                            edgecolor = 'orange'
-                                            facecolor = 'orange'
-                                            igrac2_score += brojObojenihTrouglica
-                                            # set_igrac1_score(get_igrac1_score() + brojObojenihTrouglica)
-                                            print(f"Score igrac2: {igrac2_score}")
 
                                         # Nacrtaj trougao između tih tačaka i oboji ga zelenom bojom
                                         triangle = patches.Polygon(
@@ -428,5 +429,5 @@ def drawInitialTable(n):
     plt.show()
 
 # Testiranje funkcije
-drawInitialTable(5)
+#drawInitialTable(5)
 

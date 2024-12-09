@@ -25,7 +25,7 @@ def MainMenu():
         "Љубичаста": "#7f03fc",
         "Наранџаста": "#fc7b03"
     }
-    selected_colors = {1: None, 2: None}
+    selected_colors = {1: "#0ffc03", 2: "#4B7BFF"}
     selected_opponent = 1
     def on_opponent_change():
         selected_opponent = opponent_switch.get()
@@ -36,7 +36,7 @@ def MainMenu():
 
     # Функција за промену боје
     def on_color_change(player, choice):
-        selected_colors[player] = choice
+        selected_colors[player] = color_map[choice]
         print(f"Играч {player} је изабрао боју: {choice}")
         if(player==1):
             player1_combobox.configure(fg_color=color_map[choice], text_color="black")
