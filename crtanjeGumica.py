@@ -37,7 +37,6 @@ def set_prvi_igrac_na_potezu(value):
     prviIgracNaPotezu = value
 
 def connectDots(ax, point1, point2):
-    # Izračunaj dužinu i ugao pravougaonika
     length = ((point2[0] - point1[0]) ** 2 + (point2[1] - point1[1]) ** 2) ** 0.5
     angle = math.degrees(math.atan2(point2[1] - point1[1], point2[0] - point1[0]))
 
@@ -60,6 +59,17 @@ def connectDots(ax, point1, point2):
 
     # Dodaj pravougaonik na grafikon
     ax.add_patch(rectangle)
+
+    global prviIgracNaPotezu
+
+    if not prviIgracNaPotezu:
+        print("Prvi igrac je na potezu")
+    else:
+        print("Drugi igrac je na potezu")
+
+
+
+
 valid_angles = [0, 60, 120, 180, 240, 300]
 
 
@@ -273,6 +283,13 @@ def drawInitialTable(n):
     # Globalna lista za crvene tačke
     red_points = []
 
+    # global prviIgracNaPotezu
+    if prviIgracNaPotezu:
+        print("Prvi igrac je na potezu")
+
+    else:
+        print("Drugi igrac je na potezu")
+
     def on_click(event):
         threshold_distance = 0.2
 
@@ -316,11 +333,13 @@ def drawInitialTable(n):
 
                                 listaGumica.append(trenutnaGumica)#Kreira listu gumimca
 
+                                brojObojenihTrouglica=0
                                 # Pronađi 3 najbliže tačke
                                 if(len(dodati_trouglici)>0):
                                     for trougao in dodati_trouglici:
                                         if trougao not in obojeni_trouglovi:
                                             obojeni_trouglovi.append(trougao)
+                                            brojObojenihTrouglica+=1
                                         else:
                                             continue
 
@@ -329,16 +348,21 @@ def drawInitialTable(n):
                                         for teme in trougao:
                                             temena.append(point_labels_reversed[teme])
 
-                                        if get_prvi_igrac_na_potezu():
+                                        global prviIgracNaPotezu
+                                        # if get_prvi_igrac_na_potezu():
+                                        global igrac1_score, igrac2_score
+                                        if prviIgracNaPotezu:
                                             edgecolor = 'green'
                                             facecolor = 'green'
-                                            set_igrac1_score(get_igrac1_score() + 1)
-                                            print(f"Score igrac1: {get_igrac1_score()}")
+                                            igrac1_score+=brojObojenihTrouglica
+                                            # set_igrac1_score(get_igrac1_score() + brojObojenihTrouglica)
+                                            print(f"Score igrac1: {igrac1_score}")
                                         else:
                                             edgecolor = 'orange'
                                             facecolor = 'orange'
-                                            set_igrac2_score(get_igrac2_score() + 1)
-                                            print(f"Score igrac2: {get_igrac2_score()}")
+                                            igrac2_score += brojObojenihTrouglica
+                                            # set_igrac1_score(get_igrac1_score() + brojObojenihTrouglica)
+                                            print(f"Score igrac2: {igrac2_score}")
 
                                         # Nacrtaj trougao između tih tačaka i oboji ga zelenom bojom
                                         triangle = patches.Polygon(
@@ -374,6 +398,9 @@ def drawInitialTable(n):
                                                 return
                                     print(obojeni_trouglovi)
                                     print(listaTrouglova)
+
+                                prviIgracNaPotezu = not prviIgracNaPotezu
+
                             else:
                                 print(f"Tačke {pair} su već povezane!")
                         else:
