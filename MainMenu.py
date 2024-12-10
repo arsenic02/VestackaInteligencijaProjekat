@@ -45,10 +45,11 @@ def MainMenu():
         update_comboboxes()
 
     def update_comboboxes():
-        available_colors = [
-            color for color in all_colors
-            if color not in selected_colors.values()
-        ]
+        available_colors = []
+        for color in all_colors:
+            if color_map[color] not in selected_colors.values():
+                available_colors.append(color)
+
         player1_combobox.configure(values=available_colors)
         player2_combobox.configure(values=available_colors)
 
@@ -96,9 +97,14 @@ def MainMenu():
     player1_label = ctk.CTkLabel(player1_frame, text="Играч 1 - Одабери боју", font=("Arial", 14))
     player1_label.pack(pady=5)
 
+    available_colors = []
+    for color in all_colors:
+        if color_map[color] not in selected_colors.values():
+            available_colors.append(color)
+
     player1_combobox = ctk.CTkComboBox(
         player1_frame,
-        values=all_colors,
+        values=available_colors,
         command=lambda choice: on_color_change(1, choice),
         fg_color=color_map["Зелена"],
         text_color="black"
@@ -115,7 +121,7 @@ def MainMenu():
 
     player2_combobox = ctk.CTkComboBox(
         player2_frame,
-        values=all_colors,
+        values=available_colors,
         command=lambda choice: on_color_change(2, choice),
         fg_color = color_map["Плава"],
         text_color="black"
