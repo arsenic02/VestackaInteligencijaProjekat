@@ -11,6 +11,7 @@ igrac1_score=0 #score predstavlja broj trouglica na tabli
 igrac2_score=0
 listaGumica = []
 listaTrouglova = []
+ukupna_suma = 0
 def get_igrac1_score():
     return igrac1_score
 def get_igrac2_score():
@@ -191,18 +192,6 @@ def detect_triangle(input_list, all_lists):
 
 
 def krajIgre(n,igrac1_score,igrac2_score):
-
-    suma = n + n - 1  # Početna vrednost sume (n + n - 1)
-    ukupna_suma = 0  # Početna vrednost ukupne sume
-
-    # Petlja ide od 0 do n-1 (n puta)
-    for i in range(n-1):
-        ukupna_suma += suma  # Dodajemo trenutnu vrednost sume
-        suma += 2  # Povećavamo sumu za 2 u svakoj iteraciji
-
-    print(f"Konačna suma je: {ukupna_suma}")
-
-
     if igrac1_score>=ukupna_suma or igrac2_score>=ukupna_suma:
         return True #kraj igre
     else:
@@ -221,6 +210,12 @@ def drawInitialTable(n,selected_opponent, player1Color, player2Color):
     x_coords = []
     y_coords = []
 
+    suma = n + n - 1  # Početna vrednost sume (n + n - 1)
+    global ukupna_suma
+    # Petlja ide od 0 do n-1 (n puta)
+    for i in range(n - 1):
+        ukupna_suma += suma  # Dodajemo trenutnu vrednost sume
+        suma += 2  # Povećavamo sumu za 2 u svakoj iteraciji
 
     labels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     label_index = 0  # Indeks za oznake redova
@@ -321,7 +316,7 @@ def drawInitialTable(n,selected_opponent, player1Color, player2Color):
 
                                 intermediate_points = get_intermediate_points(start_point, end_point,n)
                                 trenutnaGumica = [point_labels[start_point], *intermediate_points, point_labels[end_point]]
-                                print(trenutnaGumica)
+                                #print(trenutnaGumica)
                                 detektovani_trouglici = detect_triangle(trenutnaGumica,listaGumica)
 
                                 dodati_trouglici = []
@@ -336,11 +331,12 @@ def drawInitialTable(n,selected_opponent, player1Color, player2Color):
                                 brojObojenihTrouglica=0
                                 # Pronađi 3 najbliže tačke
                                 if(len(dodati_trouglici)>0):
+                                    brojObojenihTrouglica = len(dodati_trouglici)
                                     global prviIgracNaPotezu
 
                                     global igrac1_score, igrac2_score
-                                    print(f"Boja za 1 igraca: {player1Color}")
-                                    print(f"Boja za 2 igraca: {player2Color}")
+                                    #print(f"Boja za 1 igraca: {player1Color}")
+                                    #print(f"Boja za 2 igraca: {player2Color}")
                                     if prviIgracNaPotezu:
                                         edgecolor = player1Color
                                         facecolor = player1Color
@@ -360,12 +356,11 @@ def drawInitialTable(n,selected_opponent, player1Color, player2Color):
                                         else:
                                             continue
 
-                                        #point_labels_reversed
                                         temena = []
                                         for teme in trougao:
                                             temena.append(point_labels_reversed[teme])
 
-                                        # Nacrtaj trougao između tih tačaka i oboji ga zelenom bojom
+                                        # Nacrtaj trougao između tih tačaka i oboji ga zadatom bojom
                                         triangle = patches.Polygon(
                                             temena,
                                             closed=True,
@@ -376,29 +371,23 @@ def drawInitialTable(n,selected_opponent, player1Color, player2Color):
                                         )
                                         ax.add_patch(triangle)
 
-
                                         # Oznake tačaka trougla
                                         for point in temena:
                                             ax.plot(*point, 'go', markersize=5)
-                                            print(f"Tačka trougla: {point_labels[point]}")
+                                           #print(f"Tačka trougla: {point_labels[point]}")
 
                                         # logika da nakon odigranog poteza prvog igraca igra drugi igrac, i obrnuto
 
-                                        if get_prvi_igrac_na_potezu():
-                                            set_prvi_igrac_na_potezu(False)
-                                        else:
-                                            set_prvi_igrac_na_potezu(True)
-
-                                            if krajIgre(n, igrac1_score, igrac2_score):
-                                                if igrac1_score > igrac2_score:
-                                                    print('Kraj igre, igrac1 je pobedio')
-                                                elif igrac2_score > igrac1_score:
-                                                    print('Kraj igre, igrac2 je pobedio')
-                                                else:
-                                                    print('Kraj igre, nereseno je')
-                                                return
-                                    print(obojeni_trouglovi)
-                                    print(listaTrouglova)
+                                        if krajIgre(n, igrac1_score, igrac2_score):
+                                            if igrac1_score > igrac2_score:
+                                                print('Kraj igre, igrac1 je pobedio')
+                                            elif igrac2_score > igrac1_score:
+                                                print('Kraj igre, igrac2 je pobedio')
+                                            else:
+                                                print('Kraj igre, nereseno je')
+                                            return
+                                    #print(obojeni_trouglovi)
+                                    #print(listaTrouglova)
 
                                 prviIgracNaPotezu = not prviIgracNaPotezu
 
@@ -427,7 +416,3 @@ def drawInitialTable(n,selected_opponent, player1Color, player2Color):
     fig.canvas.mpl_connect('button_press_event', on_click)
 
     plt.show()
-
-# Testiranje funkcije
-#drawInitialTable(5)
-
