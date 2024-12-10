@@ -37,7 +37,7 @@ def set_prvi_igrac_na_potezu(value):
     global prviIgracNaPotezu
     prviIgracNaPotezu = value
 
-def connectDots(ax, point1, point2):
+def connectDots(ax, point1, point2, player1Color,player2Color):
     length = ((point2[0] - point1[0]) ** 2 + (point2[1] - point1[1]) ** 2) ** 0.5
     angle = math.degrees(math.atan2(point2[1] - point1[1], point2[0] - point1[0]))
 
@@ -61,14 +61,16 @@ def connectDots(ax, point1, point2):
     # Dodaj pravougaonik na grafikon
     ax.add_patch(rectangle)
 
-    global prviIgracNaPotezu
-
+    # global prviIgracNaPotezu
+    #ovde sam dodavao
     if not prviIgracNaPotezu:
+        trenutni_igrac_text.set_text("Prvi igrač je na potezu")
+        trenutni_igrac_text.set_color(player1Color)
         print("Prvi igrac je na potezu")
     else:
+        trenutni_igrac_text.set_text("Drugi igrač je na potezu")
+        trenutni_igrac_text.set_color(player2Color)
         print("Drugi igrac je na potezu")
-
-
 
 
 valid_angles = [0, 60, 120, 180, 240, 300]
@@ -197,6 +199,8 @@ def krajIgre(n,igrac1_score,igrac2_score):
     else:
         return False
 
+trenutni_igrac_text=None
+
 def drawInitialTable(n,selected_opponent, player1Color, player2Color):
     if n < 4 or n > 8:
         print("n mora biti između 4 i 8!")
@@ -277,13 +281,37 @@ def drawInitialTable(n,selected_opponent, player1Color, player2Color):
 
     # Globalna lista za crvene tačke
     red_points = []
+    global trenutni_igrac_text
 
     # global prviIgracNaPotezu
-    if prviIgracNaPotezu:
-        print("Prvi igrac je na potezu")
+    print("Prvi igrac je na potezu")
 
-    else:
-        print("Drugi igrac je na potezu")
+    # Rezultat za Igrača 1 (gornji desni ugao prozora)
+    score_text_igrac1 = fig.text(0.95, 0.95, f"Igrač 1: {igrac1_score}",
+                                 transform=fig.transFigure, fontsize=16, verticalalignment='top',
+                                 horizontalalignment='right', color=player1Color)
+
+    # Rezultat za Igrača 2 (malo ispod Igrača 1)
+    score_text_igrac2 = fig.text(0.95, 0.90, f"Igrač 2: {igrac2_score}",
+                                 transform=fig.transFigure, fontsize=16, verticalalignment='top',
+                                 horizontalalignment='right',color=player2Color)
+
+    #tekst koji ispisuje ko je sledeci na potezu, na pocetku partije je uvek prvi igrac na potezu
+    trenutni_igrac_text = fig.text(0.5, 0.98,
+                                   "Prvi igrač je na potezu",  # Početni tekst
+                                   transform=fig.transFigure,
+                                   fontsize=16,
+                                   verticalalignment='top',
+                                   horizontalalignment='center',
+                                   color=player1Color)
+
+    def update_score_display():
+        # score_text.set_text(f"Igrač 1: {igrac1_score}   Igrač 2: {igrac2_score}")
+
+        score_text_igrac1.set_text(f"Igrač 1: {igrac1_score}")
+        score_text_igrac2.set_text(f"Igrač 2: {igrac2_score}")
+
+        plt.draw()
 
     def on_click(event):
         threshold_distance = 0.2
@@ -312,7 +340,7 @@ def drawInitialTable(n,selected_opponent, player1Color, player2Color):
                             pair = tuple(sorted([start_point, end_point]))
                             if pair not in connected_pairs:
                                 connected_pairs.add(pair)
-                                connectDots(ax, start_point, end_point)
+                                connectDots(ax, start_point, end_point,player1Color,player2Color)
 
                                 intermediate_points = get_intermediate_points(start_point, end_point,n)
                                 trenutnaGumica = [point_labels[start_point], *intermediate_points, point_labels[end_point]]
@@ -347,6 +375,8 @@ def drawInitialTable(n,selected_opponent, player1Color, player2Color):
                                         facecolor = player2Color
                                         igrac2_score += brojObojenihTrouglica
                                         print(f"Score igrac2: {igrac2_score}")
+
+                                    update_score_display()  # Update score display
 
 
                                     for trougao in dodati_trouglici:
@@ -390,6 +420,9 @@ def drawInitialTable(n,selected_opponent, player1Color, player2Color):
                                     #print(listaTrouglova)
 
                                 prviIgracNaPotezu = not prviIgracNaPotezu
+
+                                #dodato ######################33333
+                                # plt.draw()
 
                             else:
                                 print(f"Tačke {pair} su već povezane!")
