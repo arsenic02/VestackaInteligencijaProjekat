@@ -1,3 +1,5 @@
+from traceback import print_tb
+
 import matplotlib.pyplot as plt
 import math
 import matplotlib.patches as patches
@@ -11,6 +13,8 @@ igrac1_score=0 #score predstavlja broj trouglica na tabli
 igrac2_score=0
 listaGumica = []
 listaTrouglova = []
+lista_mogucih_poteza = []
+cvorovi = point_labels_reversed.keys()
 ukupna_suma = 0
 def get_igrac1_score():
     return igrac1_score
@@ -36,6 +40,24 @@ def get_prvi_igrac_na_potezu():
 def set_prvi_igrac_na_potezu(value):
     global prviIgracNaPotezu
     prviIgracNaPotezu = value
+
+
+def is_valid_moove(gumica, n):
+    if(len(gumica)!=4):
+        return False
+    if("Nema odgovarajućeg slova1" in gumica):
+        return False
+    end_point = razdvoji(gumica[-1]);
+    column_granica = 2 * n - 1 - abs(n - slovo_u_broj(end_point[0]))
+    if (slovo_u_broj(end_point[0]) < 1 or slovo_u_broj(end_point[0]) > (2 * n - 1)):
+        return False
+    if (end_point[1] < 1 or end_point[1] > column_granica):
+        return False
+    for g in listaGumica:
+        if ((g[0] == gumica[0] and g[3] == gumica[3]) or (
+                g[0] == gumica[3] and g[3] == gumica[0])):
+            return False
+    return True
 
 def connectDots(ax, point1, point2, player1Color,player2Color):
     length = ((point2[0] - point1[0]) ** 2 + (point2[1] - point1[1]) ** 2) ** 0.5
@@ -113,10 +135,9 @@ def slovo_u_broj(n):
     return (ord(n) - ord('A') + 1)
 
 
-def get_intermediate_points(start, end,n):
-    start_point = razdvoji(point_labels[start])
-    end_point = razdvoji(point_labels[end])
+def get_intermediate_points(start_point, end_point,n):
     intermediate = []
+
     if (start_point[0] > end_point[0]):  # Uvek stavlja da onaj gore bude start
         start_point, end_point = end_point, start_point  # Swap vrednosti tuple-ova
 
@@ -315,7 +336,7 @@ def drawInitialTable(n,selected_opponent, player1Color, player2Color):
 
     def on_click(event):
         threshold_distance = 0.2
-
+        print(point_labels)
         if event.xdata is not None and event.ydata is not None:
             distances = [
                 ((x - event.xdata) ** 2 + (y - event.ydata) ** 2) ** 0.5
@@ -335,6 +356,7 @@ def drawInitialTable(n,selected_opponent, player1Color, player2Color):
                     end_point = selected_points[1]
 
                     if is_valid_angle(start_point, end_point):
+                        #Pocetak funckije IS_VALID_MOOVE
                         distance = calculate_distance(start_point, end_point)
                         if distance >= 3 and distance <= 3.6:  # Proveri da li je dužina linije odgovarajuća
                             pair = tuple(sorted([start_point, end_point]))
@@ -342,7 +364,7 @@ def drawInitialTable(n,selected_opponent, player1Color, player2Color):
                                 connected_pairs.add(pair)
                                 connectDots(ax, start_point, end_point,player1Color,player2Color)
 
-                                intermediate_points = get_intermediate_points(start_point, end_point,n)
+                                intermediate_points = get_intermediate_points(razdvoji(point_labels[start_point]), razdvoji(point_labels[end_point]),n)
                                 trenutnaGumica = [point_labels[start_point], *intermediate_points, point_labels[end_point]]
                                 #print(trenutnaGumica)
                                 detektovani_trouglici = detect_triangle(trenutnaGumica,listaGumica)
@@ -355,6 +377,7 @@ def drawInitialTable(n,selected_opponent, player1Color, player2Color):
                                         dodati_trouglici.append(sortedTrouglic)
 
                                 listaGumica.append(trenutnaGumica)#Kreira listu gumimca
+
 
                                 brojObojenihTrouglica=0
                                 # Pronađi 3 najbliže tačke
@@ -421,8 +444,69 @@ def drawInitialTable(n,selected_opponent, player1Color, player2Color):
 
                                 prviIgracNaPotezu = not prviIgracNaPotezu
 
-                                #dodato ######################33333
-                                # plt.draw()
+                                #Moguci potezi
+                                trenGum = 0
+                                for start_point in cvorovi:
+                                    sp = razdvoji(start_point)
+                                    end = 0
+                                    endRow = 0
+                                    for angle in valid_angles:
+                                        if (n - slovo_u_broj(sp[0]) >= 0):
+                                            if (angle == 0):
+                                                end = sp[1] + 3
+                                                endRow = slovo_u_broj(sp[0])
+                                            elif (angle == 60):
+                                                end = sp[1]
+                                                endRow = slovo_u_broj(sp[0]) - 3
+                                            elif (angle == 120):
+                                                end = sp[1] - 3
+                                                endRow = slovo_u_broj(sp[0]) - 3
+                                            elif (angle == 180):
+                                                end = sp[1] - 3
+                                                endRow = slovo_u_broj(sp[0])
+                                            elif (angle == 240):
+                                                end = sp[1] - max(3 - abs(n - slovo_u_broj(sp[0])), 0)
+                                                endRow =  slovo_u_broj(sp[0]) + 3
+                                            elif (angle == 300):
+                                                end = sp[1] + min(abs(n - slovo_u_broj(sp[0])), 3)
+                                                endRow = slovo_u_broj(sp[0]) + 3
+                                        else:
+                                            if (angle == 0):
+                                                end = sp[1] + 3
+                                                endRow = slovo_u_broj(sp[0])
+                                            elif (angle == 60):
+                                                end = sp[1] + min(abs(n - slovo_u_broj(sp[0])), 3)
+                                                endRow = slovo_u_broj(sp[0]) - 3
+                                            elif (angle == 120):
+                                                end = sp[1] - max(3 - abs(n - slovo_u_broj(sp[0])), 0)
+                                                endRow = slovo_u_broj(sp[0]) - 3
+                                            elif (angle == 180):
+                                                end = sp[1] - 3
+                                                endRow = slovo_u_broj(sp[0])
+                                            elif (angle == 240):#Krivac
+                                                end = sp[1] - 3
+                                                endRow = slovo_u_broj(sp[0]) + 3
+                                            elif (angle == 300):#Krivac
+                                                end = sp[1]
+                                                endRow = slovo_u_broj(sp[0]) + 3
+
+                                        column_granica = 2 * n - 1 - abs(n - endRow)
+                                        if (endRow < 1 or endRow > (2 * n - 1)):
+                                            continue
+                                        if (end < 1 or end > column_granica):
+                                            continue
+                                        res = f"{broj_u_slovo(endRow)}{end}"
+
+                                        ip = get_intermediate_points(razdvoji(start_point), razdvoji(res), n)
+                                        trenGum = [start_point, *ip,res]
+
+                                        if (is_valid_moove(trenGum,n)):
+                                            lista_mogucih_poteza.append(trenGum)
+                                        else:
+                                            continue
+                                # print("Lista moucih poteza:")
+                                # for element in lista_mogucih_poteza:
+                                #     print(element)
 
                             else:
                                 print(f"Tačke {pair} su već povezane!")
