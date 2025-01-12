@@ -14,6 +14,7 @@ igrac2_score=0
 listaGumica = []
 listaTrouglova = []
 lista_mogucih_poteza = []
+lista_mogucih_trouglica=[]
 cvorovi = point_labels_reversed.keys()
 ukupna_suma = 0
 def get_igrac1_score():
@@ -28,6 +29,14 @@ def set_igrac1_score(value):
 def set_igrac2_score(value):
     global igrac2_score
     igrac2_score = value
+
+def formirajStanjaIgre(potez,lista_mogucih_trouglica):
+    trougliciPredvidjeni=[]
+    trougliciPredvidjeni=detect_triangle(potez,listaGumica)
+    if len(trougliciPredvidjeni) != 0:
+        lista_mogucih_trouglica.append(trougliciPredvidjeni)
+        print("------------------------------------------")
+        print(f"Predvidjeni trouglici za potez {potez}: {trougliciPredvidjeni}")
 
 prviIgracNaPotezu=True #promenljiva koja oznacava koji je igrac na potezu
     #ako je true -> prvi igrac je na potezu
@@ -57,6 +66,11 @@ def is_valid_moove(gumica, n):
         if ((g[0] == gumica[0] and g[3] == gumica[3]) or (
                 g[0] == gumica[3] and g[3] == gumica[0])):
             return False
+
+    for g in lista_mogucih_poteza:
+        if ((g[0] == gumica[0] and g[3] == gumica[3]) or (g[0] == gumica[3] and g[3] == gumica[0])):
+            return False
+
     return True
 
 def connectDots(ax, point1, point2, player1Color,player2Color):
@@ -446,6 +460,8 @@ def drawInitialTable(n,selected_opponent, player1Color, player2Color):
 
                                 #Moguci potezi
                                 trenGum = 0
+                                # lista_mogucih_poteza=[]
+                                lista_mogucih_poteza.clear()
                                 for start_point in cvorovi:
                                     sp = razdvoji(start_point)
                                     end = 0
@@ -504,6 +520,17 @@ def drawInitialTable(n,selected_opponent, player1Color, player2Color):
                                             lista_mogucih_poteza.append(trenGum)
                                         else:
                                             continue
+
+                                        #logika za formiranje stanja
+
+                                for potez in lista_mogucih_poteza:
+                                    formirajStanjaIgre(potez,lista_mogucih_trouglica)
+
+
+                                print("------------------------------------------///////////////////////////////")
+                                # print(f"Lista mogucih poteza: {lista_mogucih_poteza}")
+
+
                                 # print("Lista moucih poteza:")
                                 # for element in lista_mogucih_poteza:
                                 #     print(element)
