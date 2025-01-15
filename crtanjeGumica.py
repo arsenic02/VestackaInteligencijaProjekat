@@ -51,7 +51,7 @@ def set_prvi_igrac_na_potezu(value):
     prviIgracNaPotezu = value
 
 
-def is_valid_moove(gumica, n):
+def is_valid_move(gumica, n):
     if(len(gumica)!=4):
         return False
     if("Nema odgovarajućeg slova1" in gumica):
