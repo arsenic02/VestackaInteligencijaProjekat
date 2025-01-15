@@ -370,7 +370,7 @@ def drawInitialTable(n,selected_opponent, player1Color, player2Color):
                     end_point = selected_points[1]
 
                     if is_valid_angle(start_point, end_point):
-                        #Pocetak funckije IS_VALID_MOOVE
+                        #Pocetak funckije is_valid_move
                         distance = calculate_distance(start_point, end_point)
                         if distance >= 3 and distance <= 3.6:  # Proveri da li je dužina linije odgovarajuća
                             pair = tuple(sorted([start_point, end_point]))
@@ -516,7 +516,7 @@ def drawInitialTable(n,selected_opponent, player1Color, player2Color):
                                         ip = get_intermediate_points(razdvoji(start_point), razdvoji(res), n)
                                         trenGum = [start_point, *ip,res]
 
-                                        if (is_valid_moove(trenGum,n)):
+                                        if (is_valid_move(trenGum,n)):
                                             lista_mogucih_poteza.append(trenGum)
                                         else:
                                             continue
