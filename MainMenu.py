@@ -1,9 +1,5 @@
-#lepo se prikazuje sad
-from secrets import choice
-
 import customtkinter as ctk
 from crtanjeGumica import drawInitialTable
-# Иницијализација главног прозора
 
 def MainMenu():
 
@@ -11,11 +7,9 @@ def MainMenu():
     root.title("Игра Троуглићи")
     root.geometry("400x500")
 
-    # Стилови
-    ctk.set_appearance_mode("Dark")  # Модеран тамни режим
-    ctk.set_default_color_theme("blue")  # Плави бојни теме
+    ctk.set_appearance_mode("Dark")
+    ctk.set_default_color_theme("blue")
 
-    # Боје и мапирање за позадину
     all_colors = ["Зелена", "Црвена", "Плава", "Жута", "Љубичаста", "Наранџаста"]
     color_map = {
         "Црвена": "#FF4B4B",
@@ -29,12 +23,7 @@ def MainMenu():
     selected_opponent = 1
     def on_opponent_change():
         selected_opponent = opponent_switch.get()
-        if selected_opponent:
-            print(f"Изабран противник је рачунар")
-        else:
-            print(f"Изабран противник је други играч")
 
-    # Функција за промену боје
     def on_color_change(player, choice):
         selected_colors[player] = color_map[choice]
         print(f"Играч {player} је изабрао боју: {choice}")
@@ -53,7 +42,6 @@ def MainMenu():
         player1_combobox.configure(values=available_colors)
         player2_combobox.configure(values=available_colors)
 
-    # Функције за повећање и смањење вредности
     def increment_value():
         current_value = int(number_entry.get())
         if current_value < 8:
@@ -68,14 +56,11 @@ def MainMenu():
             number_entry.insert(0, str(current_value - 1))
 
 
-    # Заглавље
     title_label = ctk.CTkLabel(root, text="ГЛАВНИ МЕНИ", font=("Arial", 20, "bold"))
-    title_label.pack(pady=10)  # Смањен падинг
+    title_label.pack(pady=10)
 
-
-    # Подела за одабир противника
     opponent_frame = ctk.CTkFrame(root, corner_radius=10)
-    opponent_frame.pack(pady=10, padx=15, fill="x")  # Смањени размаци
+    opponent_frame.pack(pady=10, padx=15, fill="x")
 
     opponent_label = ctk.CTkLabel(opponent_frame, text="Одабери противника", font=("Arial", 14))
     opponent_label.pack(pady=5)
@@ -89,8 +74,7 @@ def MainMenu():
     opponent_switch = ctk.CTkSwitch(opponent_inner_frame, text="Рачунар", command=on_opponent_change)
     opponent_switch.pack(side="left", padx=5)
 
-#-----------------------------------------------------------------------
-    # Подела за одабир боје играча 1
+
     player1_frame = ctk.CTkFrame(root, corner_radius=10)
     player1_frame.pack(pady=10, padx=15, fill="x")
 
@@ -110,9 +94,9 @@ def MainMenu():
         text_color="black"
     )
     player1_combobox.pack(pady=5)
-    player1_combobox.set("Зелена")  # Постављање текста на почетну вредност
+    player1_combobox.set("Зелена")
 
-    # Подела за одабир боје играча 2
+
     player2_frame = ctk.CTkFrame(root, corner_radius=10)
     player2_frame.pack(pady=10, padx=15, fill="x")
 
@@ -128,43 +112,37 @@ def MainMenu():
     )
     player2_combobox.pack(pady=5)
     player2_combobox.set("Плава")
-    #----------------------------------------------------------------------------
-    # Подела за унос броја
+
+
     number_frame = ctk.CTkFrame(root, corner_radius=10)
     number_frame.pack(pady=10, padx=15, fill="x")
 
     number_label = ctk.CTkLabel(number_frame, text="Одабери дужину странице (4-8):", font=("Arial", 14))
     number_label.pack(pady=5)
 
-    # Оквир за центрирање
     controls_frame = ctk.CTkFrame(number_frame, fg_color="transparent")
     controls_frame.pack(pady=5, padx=5, anchor="center")
 
-    # Дугме за смањење
     decrement_button = ctk.CTkButton(controls_frame, text="-", width=30, command=decrement_value)
     decrement_button.pack(side="left", padx=5)
 
-    # Поље за унос броја
     number_entry = ctk.CTkEntry(controls_frame, width=100, justify="center")
-    number_entry.insert(0, "4")  # Подразумевана вредност
+    number_entry.insert(0, "4")
     number_entry.pack(side="left", padx=5)
 
-    # Дугме за повећање
     increment_button = ctk.CTkButton(controls_frame, text="+", width=30, command=increment_value)
     increment_button.pack(side="left", padx=5)
 
-    # Placeholder функција за почетак игре
     def start_game():
-        length = int(number_entry.get())  # Конвертуј у број
-        if 4 <= length <= 8:  # Провера да је број у дозвољеном опсегу
-            drawInitialTable(length,selected_opponent,selected_colors[1],selected_colors[2])  # Проследи број функцији
-            print(f"Игра је започета са дужином странице: {length}")
+        length = int(number_entry.get())
+        if 4 <= length <= 8:
+            drawInitialTable(length,selected_opponent,selected_colors[1],selected_colors[2])
+            #print(f"Игра је започета са дужином странице: {length}")
         else:
             drawInitialTable(4,selected_opponent,selected_colors[1],selected_colors[2])
-            print(f"Игра је започета са дужином странице: 4")
+           #print(f"Игра је започета са дужином странице: 4")
         root.withdraw()
 
-    # Дугме за покретање игре
     start_button = ctk.CTkButton(
         root,
         text="Започни игру",
@@ -173,5 +151,4 @@ def MainMenu():
     )
     start_button.pack(pady=15, anchor="center")
 
-    # Покретање главне петље
     root.mainloop()

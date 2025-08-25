@@ -6,7 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="d4f15027-6745-43b0-8863-07c782432e4f" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MainMenu.py" beforeDir="false" afterPath="$PROJECT_DIR$/MainMenu.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crtanjeGumica.py" beforeDir="false" afterPath="$PROJECT_DIR$/crtanjeGumica.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crtanjeTrouglica.py" beforeDir="false" afterPath="$PROJECT_DIR$/crtanjeTrouglica.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tabla.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,18 +47,19 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python.MainMenu.executor&quot;: &quot;Run&quot;,
-    &quot;Python.crtanjeGumica.executor&quot;: &quot;Run&quot;,
-    &quot;Python.crtanjeTrouglica.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;Python.tabla.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.MainMenu.executor": "Run",
+    "Python.crtanjeGumica.executor": "Run",
+    "Python.crtanjeTrouglica.executor": "Run",
+    "Python.main.executor": "Run",
+    "Python.tabla.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "E:/Downloads/Python-projekti/lab5_RV"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
